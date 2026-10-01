@@ -1,0 +1,47 @@
+{
+  "name": "arcmoon-lsp",
+  "version": "0.1.0",
+  "description": "Language server for ArcMoon (.arcm files).",
+  "keywords": [
+    "arcmoon",
+    "language-server",
+    "lsp"
+  ],
+  "homepage": "https://github.com/Adam-Elmi/ArcMoon-LSP#readme",
+  "author": "Adam Elmi",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20.10"
+  },
+  "bin": {
+    "arcmoon-lsp": "server/cli.js"
+  },
+  "exports": {
+    ".": "./server/server.js"
+  },
+  "files": [
+    "server"
+  ],
+  "scripts": {
+    "start": "node server/cli.js --stdio",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@types/node": "^26.6.3",
+    "acorn": "^8.18.0",
+    "arcmoon": "^1.0.0-beta.1",
+    "mathml-tag-names": "^4.0.0",
+    "prettier": "^3.9.9",
+    "svg-tag-names": "^3.0.1",
+    "typescript": "5.9",
+    "vscode-css-languageservice": "^6.3.10",
+    "vscode-html-languageservice": "^5.6.2",
+    "vscode-languageserver": "^10.1.2",
+    "vscode-languageserver-textdocument": "^1.0.15"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.2",
+    "vscode-jsonrpc": "^9.0.3"
+  }
+}

@@ -1,0 +1,11 @@
+id = "arcmoon"
+name = "ArcMoon"
+version = "0.1.0"
+schema_version = 1
+authors = ["Adam Elmi"]
+description = "ArcMoon (.arcm) language support: errors, colors and completions from arcmoon-lsp."
+repository = "https://github.com/Adam-Elmi/ArcMoon-LSP"
+
+[language_servers.arcmoon-lsp]
+name = "ArcMoon LSP"
+languages = ["ArcMoon"]

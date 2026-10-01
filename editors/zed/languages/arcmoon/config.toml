@@ -1,0 +1,15 @@
+name = "ArcMoon"
+path_suffixes = ["arcm"]
+language_servers = ["arcmoon-lsp"]
+line_comments = ["# "]
+word_characters = ["-"]
+block_comment = ["### ", " ###"]
+brackets = [
+    { start = "[", end = "]", close = true, newline = true },
+    { start = "${", end = "}$", close = true, newline = true },
+    { start = "{", end = "}", close = true, newline = true },
+    { start = "(", end = ")", close = true, newline = true },
+    { start = "\"", end = "\"", close = true, newline = false, not_in = ["string"] },
+    { start = "'", end = "'", close = true, newline = false, not_in = ["string"] },
+    { start = "`", end = "`", close = true, newline = false, not_in = ["string"] }
+]

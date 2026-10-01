@@ -1,0 +1,11 @@
+{
+  "languageserver": {
+    "arcmoon": {
+      "command": "arcmoon-lsp",
+      "args": ["--stdio"],
+      "filetypes": ["arcmoon"],
+      "rootPatterns": ["arcmoon.config.js", "package.json", ".git"]
+    }
+  },
+  "semanticTokens.filetypes": ["arcmoon"]
+}

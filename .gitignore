@@ -1,2 +1,4 @@
 node_modules
 ArcMoon-LSP.md
+/editors/zed/target
+/editors/zed/extension.wasm

@@ -2,15 +2,42 @@
 
 Errors, colors, completions and more for `.arcm` files, from `arcmoon-lsp`.
 
+## Requirements
+
+- **Node.js 20.10 or newer**, to run the server.
+- **Neovim 0.11 or newer** works as it is. Older Neovim needs [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig).
+
+## Install
+
 1. Install the server:
 
    ```bash
    npm install -g arcmoon-lsp
    ```
 
-2. Copy [`arcmoon.lua`](arcmoon.lua) into your config, for example `~/.config/nvim/lua/arcmoon.lua`, and add `require("arcmoon")` to `init.lua`.
+2. Add the ArcMoon setup to your config:
 
-- **Neovim 0.11+:** works as is, no plugin needed.
-- **Older Neovim:** needs [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig); load `arcmoon.lua` after it.
-- **Colors** come from the server (semantic tokens), on by default since Neovim 0.9.
-- **A local copy of the server:** change `cmd` to `{ "node", "/path/to/ArcMoon-LSP/server/cli.js", "--stdio" }`.
+   ```bash
+   arcmoon-lsp init neovim
+   ```
+
+   It writes `arcmoon.lua` into `~/.config/nvim/lua/` (it asks first, so you can pick another place).
+
+3. Load it from your `init.lua`:
+
+   ```lua
+   require("arcmoon")
+   ```
+
+   With nvim-lspconfig, put this line after the plugin is loaded.
+
+4. Restart Neovim and open a `.arcm` file.
+
+The server's colors are on by default (Neovim 0.9 and newer).
+
+## Update
+
+```bash
+npm install -g arcmoon-lsp
+arcmoon-lsp init neovim --force
+```

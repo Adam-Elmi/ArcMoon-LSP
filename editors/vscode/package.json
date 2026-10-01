@@ -47,7 +47,7 @@
         "arcmoon.server.path": {
           "type": "string",
           "default": "",
-          "markdownDescription": "Path to a local `arcmoon-lsp` server (`…/ArcMoon-LSP/server/cli.js`). Leave empty to use the server that comes with the extension."
+          "markdownDescription": "Path to the server's `cli.js` (`…/arcmoon-lsp/server/cli.js`), to use a server other than the one from `npm install -g arcmoon-lsp`. Leave empty normally."
         }
       }
     },

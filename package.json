@@ -21,13 +21,23 @@
     ".": "./server/server.js"
   },
   "files": [
-    "server"
+    "server",
+    "editors/zed/extension.toml",
+    "editors/zed/Cargo.toml",
+    "editors/zed/src",
+    "editors/zed/languages",
+    "editors/vscode/arcmoon-*.vsix",
+    "editors/neovim/arcmoon.lua",
+    "editors/vim/ftdetect",
+    "editors/vim/ftplugin",
+    "editors/vim/coc-settings.json"
   ],
   "scripts": {
     "start": "node server/cli.js --stdio",
     "test": "vitest run"
   },
   "dependencies": {
+    "@clack/prompts": "^1.8.1",
     "@types/node": "^26.6.3",
     "acorn": "^8.18.0",
     "arcmoon": "^1.0.0-beta.2",

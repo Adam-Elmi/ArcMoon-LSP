@@ -1,22 +1,38 @@
 # ArcMoon for VS Code
 
-Errors, colors and completions for `.arcm` files, from `arcmoon-lsp`.
+Errors, colors, completions and more for `.arcm` files, from `arcmoon-lsp`.
 
-## Try it from this repo
+## Install
 
-1. Open this folder (`editors/vscode`) in VS Code.
-2. Press **F5** ("Run ArcMoon extension"). A second window opens with the extension.
-3. Open any `.arcm` file there. The extension uses the repo's `server/cli.js`.
+1. Install the server (needs Node.js 20.10 or newer):
 
-## Install the packaged extension
+   ```bash
+   npm install -g arcmoon-lsp
+   ```
+
+2. Install the extension from VS Code:
+   1. Open the Extensions view: `Ctrl+Shift+X` (`Cmd+Shift+X` on macOS).
+   2. Search for **ArcMoon**.
+   3. Click **Install**.
+
+3. Open a `.arcm` file.
+
+VSCodium and other editors based on VS Code find it the same way, through Open VSX.
+
+## Other ways to install the extension
+
+**With `arcmoon-lsp`:**
 
 ```bash
-npm run package                            # makes arcmoon-0.1.0.vsix
-code --install-extension arcmoon-0.1.0.vsix
+arcmoon-lsp init vscode
 ```
 
-Until `arcmoon-lsp` is published, point it at the server in VS Code's settings:
+It saves the extension as a `.vsix` file in `./arcmoon-vscode` and offers to install it into VS Code (or VSCodium).
 
-```json
-"arcmoon.server.path": "/path/to/ArcMoon-LSP/server/cli.js"
-```
+**From a `.vsix` file:** in the Extensions view, click **···** → **Install from VSIX…** and pick the file.
+
+## Settings
+
+| Setting | What it does |
+| --- | --- |
+| `arcmoon.server.path` | Path to the server's `cli.js`, to use a server other than the one from `npm install -g arcmoon-lsp`. Leave empty normally |

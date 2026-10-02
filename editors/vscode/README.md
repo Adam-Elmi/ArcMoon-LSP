@@ -23,13 +23,13 @@ VSCodium and other editors based on VS Code find it the same way, through Open V
    npm install -g arcmoon-lsp
    ```
 
-2. Save the extension and install it:
+2. Install the extension:
 
    ```bash
    arcmoon-lsp init vscode
    ```
 
-   It saves the extension as a `.vsix` file in `./arcmoon-vscode`, then asks to install it into VS Code (or VSCodium).
+   It asks, then installs ArcMoon into VS Code (or VSCodium) with `code --install-extension Adam-Elmi.arcmoon`.
 
 3. Reload VS Code and open a `.arcm` file.
 

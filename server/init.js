@@ -3,7 +3,7 @@
 // package and offers to build / install what that editor needs
 // ###################
 
-import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync, cpSync, statSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, cpSync, statSync } from "node:fs";
 import { join, resolve, dirname, delimiter, relative, isAbsolute } from "node:path";
 import { homedir } from "node:os";
 import { spawnSync } from "node:child_process";
@@ -25,11 +25,12 @@ const EDITORS = {
 		from: "editors/zed",
 		path: ({ cwd }) => join(cwd, "arcmoon-zed")
 	},
+	// ###################
+	// VS Code: no files; the extension (with its own server) comes from the Marketplace / Open VSX
+	// ###################
 	vscode: {
 		label: "VS Code",
-		files: () => readdirSync(join(ROOT, "editors/vscode")).filter((f) => f.endsWith(".vsix")),
-		from: "editors/vscode",
-		path: ({ cwd }) => join(cwd, "arcmoon-vscode")
+		files: []
 	},
 	neovim: {
 		label: "Neovim",
@@ -118,6 +119,12 @@ export default async function init(argv, io = terminal()) {
 		// ###################
 		// 2. Where the files go
 		// ###################
+		if (!e.files.length) {
+			const next = await STEPS[editor]({ io, confirm, asking, answer });
+			io.note(next.join("\n"), "Next");
+			if (asking) io.ask.outro("Done");
+			return 0;
+		}
 		const fallback = e.path(where);
 		let target = pathArg ? resolve(io.cwd, pathArg) : fallback;
 		if (!pathArg && asking) {
@@ -131,7 +138,7 @@ export default async function init(argv, io = terminal()) {
 		// ###################
 		// 3. Copy, without overwriting files unless asked
 		// ###################
-		const files = typeof e.files === "function" ? e.files() : e.files;
+		const files = e.files;
 		const existing = files.filter((f) => existsSync(join(target, f)));
 		if (existing.length && !force) {
 			const list = existing.join(", ");
@@ -198,23 +205,26 @@ const STEPS = {
 		return next;
 	},
 
-	async vscode({ io, target, files, confirm, asking, answer }) {
-		const vsix = join(target, files[0]);
-		const manual = `Or by hand, in VS Code: Extensions → ··· → Install from VSIX… → ${vsix}`;
+	async vscode({ io, confirm, asking, answer }) {
+		const id = "Adam-Elmi.arcmoon";
+		const manual = `Or in VS Code: Extensions (Ctrl+Shift+X) → search "ArcMoon" → Install`;
 		const editors = ["code", "codium"].filter((c) => io.has(c));
-		if (!editors.length) return [`code --install-extension ${vsix}`, manual];
+		if (!editors.length) return [manual, `Or from a terminal: code --install-extension ${id}`];
 		let cmd = editors[0];
 		if (editors.length > 1 && asking) {
 			cmd = await io.ask
 				.select({ message: "Install into which editor?", options: [{ value: "code", label: "VS Code" }, { value: "codium", label: "VSCodium" }] })
 				.then(answer);
 		}
-		if (await confirm(`Install the extension now? (${cmd} --install-extension)`, true)) {
-			io.log.step(`${cmd} --install-extension ${vsix}`);
-			if (io.run(cmd, ["--install-extension", vsix])) return ["Reload VS Code, then open a .arcm file."];
+		// ###################
+		// VS Code installs from the Marketplace, VSCodium from Open VSX; the server comes with it
+		// ###################
+		if (await confirm(`Install the ArcMoon extension now? (${cmd} --install-extension ${id})`, true)) {
+			io.log.step(`${cmd} --install-extension ${id}`);
+			if (io.run(cmd, ["--install-extension", id])) return ["Reload VS Code, then open a .arcm file."];
 			io.log.error("Installing failed; see the output above.");
 		}
-		return [`${cmd} --install-extension ${vsix}`, manual];
+		return [`${cmd} --install-extension ${id}`, manual];
 	},
 
 	async neovim({ io, target }) {

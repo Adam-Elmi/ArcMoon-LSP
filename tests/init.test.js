@@ -108,14 +108,19 @@ describe("init without questions (--yes)", () => {
 		expect(t.shown.join("\n")).toMatch(/coc\.nvim[\s\S]*LspAddServer/);
 	});
 
-	it("copies the VS Code .vsix and shows how to install it", async () => {
-		const t = fake({ interactive: false, commands: ["arcmoon-lsp", "code"] });
+	it("writes no files for VS Code and shows how to install the extension", async () => {
+		const t = fake({ interactive: false, commands: ["code"] });
 		expect(await init(["vscode", "--yes"], t.io)).toBe(0);
-		const vsix = readdirSync(join(dir, "arcmoon-vscode"));
-		expect(vsix).toHaveLength(1);
-		expect(vsix[0]).toMatch(/^arcmoon-.*\.vsix$/);
+		expect(readdirSync(dir)).toEqual([]);
 		expect(t.ran).toEqual([]);
-		expect(t.shown.join("\n")).toMatch(/code --install-extension .*\.vsix/);
+		expect(t.shown.join("\n")).toMatch(/code --install-extension Adam-Elmi\.arcmoon/);
+		expect(t.shown.join("\n")).not.toMatch(/server isn't installed/);
+	});
+
+	it("points to the Extensions view when no VS Code command is found", async () => {
+		const t = fake({ interactive: false, commands: [] });
+		expect(await init(["vscode", "--yes"], t.io)).toBe(0);
+		expect(t.shown.join("\n")).toMatch(/search "ArcMoon" → Install/);
 	});
 });
 
@@ -144,10 +149,11 @@ describe("init with questions", () => {
 	});
 
 	it("installs the VS Code extension into the chosen editor", async () => {
-		const t = fake({ answers: [undefined, "codium", true], commands: ["arcmoon-lsp", "code", "codium"] });
+		const t = fake({ answers: ["codium", true], commands: ["code", "codium"] });
 		expect(await init(["vscode"], t.io)).toBe(0);
-		expect(t.ran).toHaveLength(1);
-		expect(t.ran[0]).toMatch(/^codium --install-extension .*arcmoon-vscode.*\.vsix$/);
+		expect(t.asked.map(([k]) => k)).toEqual(["select", "confirm"]);
+		expect(t.ran).toEqual(["codium --install-extension Adam-Elmi.arcmoon"]);
+		expect(t.shown.join("\n")).toMatch(/Reload VS Code/);
 	});
 
 	it("adds the server to coc-settings.json, keeping what's there", async () => {

@@ -4,6 +4,7 @@
   "description": "ArcMoon (.arcm) language support: errors, colors and completions from arcmoon-lsp.",
   "version": "0.1.0",
   "publisher": "Adam-Elmi",
+  "icon": "icons/arcmoon.png",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -61,6 +62,7 @@
     "package": "vsce package"
   },
   "dependencies": {
+    "arcmoon-lsp": "^1.0.0",
     "vscode-languageclient": "^10.1.2"
   },
   "devDependencies": {

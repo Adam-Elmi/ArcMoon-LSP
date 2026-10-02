@@ -1,3 +1,6 @@
 .vscode/**
 .gitignore
 **/*.map
+node_modules/esbuild/**
+node_modules/@esbuild/**
+*.vsix

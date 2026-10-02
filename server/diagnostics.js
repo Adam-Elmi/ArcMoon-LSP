@@ -6,6 +6,7 @@ import { DiagnosticSeverity, DiagnosticTag } from "vscode-languageserver/node";
 import { existsSync, readdirSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import { unknownTags, closest, COMPONENT, NODE_TYPES as N, TOKEN_TYPES as T } from "arcmoon/core";
+import { cssPropDiagnostics, moveToKey } from "./css-props.js";
 import { cssDiagnostics } from "./css.js";
 import { jsDiagnostics } from "./js-rules.js";
 import { refDiagnostics } from "./refs.js";
@@ -76,7 +77,7 @@ export function tagDiagnostics(model) {
 	const names = new Map(model.imports.map((i) => [i.name, i.file]));
 	const ast = markComponents(model.ast, names);
 	const graph = { modules: new Map([[model.file ?? model.uri, { id: model.file ?? model.uri, ast, imports: names }]]) };
-	return unknownTags(graph).map((w) => at(model, { line: w.position.line, character: w.position.character + 1 }, w.message, DiagnosticSeverity.Warning));
+	return unknownTags(graph).map((w) => moveToKey(model, at(model, { line: w.position.line, character: w.position.character + 1 }, w.message, DiagnosticSeverity.Warning))).filter(Boolean);
 }
 
 // ###################
@@ -170,5 +171,5 @@ export function importDiagnostics(model) {
 // ###################
 export function diagnose(model) {
 	if (model.error) return syntaxDiagnostics(model);
-	return [...tagDiagnostics(model), ...importDiagnostics(model), ...cssDiagnostics(model), ...jsDiagnostics(model), ...refDiagnostics(model), ...fileDiagnostics(model)];
+	return [...tagDiagnostics(model), ...importDiagnostics(model), ...cssDiagnostics(model), ...cssPropDiagnostics(model), ...jsDiagnostics(model), ...refDiagnostics(model), ...fileDiagnostics(model)];
 }

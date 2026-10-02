@@ -112,6 +112,14 @@ export function markupTokens(model) {
 		if (t.type === T.WHITESPACE || t.type === T.EOF) continue;
 		if (t.type === T.IMPORT) inImport = true;
 		else if (t.type === T.CLOSE_BRACKET) inImport = false;
+		// ###################
+		// css.name: "css." as a namespace, the name as a property
+		// ###################
+		if (t.type === T.KEY && !inImport && t.value.startsWith("css.") && t.raw === undefined && t.range.start.line === t.range.end.line) {
+			out.push({ line: t.range.start.line, character: t.range.start.character, length: 4, type: "namespace", modifiers: 0 });
+			if (t.value.length > 4) out.push({ line: t.range.start.line, character: t.range.start.character + 4, length: t.value.length - 4, type: "property", modifiers: 0 });
+			continue;
+		}
 		const hit = classify(t, inImport, components);
 		if (hit) for (const p of pieces(t, model.text)) out.push({ ...p, type: hit[0], modifiers: hit[1] });
 	}

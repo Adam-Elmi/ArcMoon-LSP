@@ -66,6 +66,9 @@ export function quickFixes(model, uri, diagnostics) {
 		// ###################
 		if (tagHint) out.push(fix(`Change to ${tagHint[1]}`, d, edit(uri, d.range, tagHint[1]), found.length === 0));
 
+		const cssHint = /^css\.\S+ on \[[^\]]*\] is not a CSS property \(did you mean (css\.[\w-]+)\?\)$/.exec(message);
+		if (cssHint) out.push(fix(`Change to ${cssHint[1]}`, d, edit(uri, d.range, cssHint[1]), true));
+
 		const refHint = /^defineRef\("[^"]*"\) matches no arcm-ref .* \(did you mean "([^"]+)"\?\)$/.exec(message);
 		if (refHint) out.push(fix(`Change to "${refHint[1]}"`, d, edit(uri, d.range, `"${refHint[1]}"`), true));
 

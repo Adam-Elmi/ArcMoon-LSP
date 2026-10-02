@@ -1,6 +1,6 @@
 {
   "name": "arcmoon-lsp",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Language server for ArcMoon (.arcm files).",
   "keywords": [
     "arcmoon",
@@ -41,6 +41,7 @@
     "@types/node": "^26.6.3",
     "acorn": "^8.18.0",
     "arcmoon": "^1.0.0-beta.2",
+    "css-tree": "^3.2.1",
     "mathml-tag-names": "^4.0.0",
     "prettier": "^3.9.9",
     "svg-tag-names": "^3.0.1",

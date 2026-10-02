@@ -20,6 +20,7 @@ import { navigationDefinition, navigationHover } from "./navigation.js";
 import { quickFixes } from "./fixes.js";
 import { matchingHighlights, foldingRanges, outline } from "./structure.js";
 import { formatDocument } from "./format.js";
+import { cssPropItems, cssPrefixItem, cssValueItems, cssPropHover, cssPropColors, cssPropColorPresentations } from "./css-props.js";
 import { builtInItems, componentItems, componentPropItems, directiveItems, directiveValueItems, forEachItems, importPathItems } from "./arcmoon.js";
 import pkg from "../package.json" with { type: "json" };
 
@@ -121,14 +122,18 @@ export function startServer(connection, { warm = true } = {}) {
 		} else if (ctx.kind === "key") {
 			if (ctx.tag === "for-each") items = forEachItems(ctx, snippets);
 			else if (ctx.tag === "import" || ctx.tag === "slot") items = [];
-			else if (isComponent) items = [...componentPropItems(ctx, model, snippets), ...attributeItems({ ...ctx, tag: "div" }, snippets), ...directiveItems(ctx, snippets)];
-			else items = [...attributeItems(ctx, snippets), ...directiveItems(ctx, snippets)];
+			// ###################
+			// css.name: CSS properties; otherwise "css." is offered with the other props
+			// ###################
+			else if (ctx.partial.startsWith("css.")) items = cssPropItems(ctx, snippets);
+			else if (isComponent) items = [...componentPropItems(ctx, model, snippets), ...attributeItems({ ...ctx, tag: "div" }, snippets), ...directiveItems(ctx, snippets), cssPrefixItem(ctx)];
+			else items = [...attributeItems(ctx, snippets), ...directiveItems(ctx, snippets), cssPrefixItem(ctx)];
 		} else if (ctx.kind === "value") {
 			// ###################
 			// Paths filter by their last part, so they skip the prefix filter
 			// ###################
 			if (ctx.tag === "import") return { isIncomplete: true, items: model ? importPathItems(ctx, model) : [] };
-			items = ctx.key.startsWith("arcm-") ? directiveValueItems(ctx) : valueItems(ctx);
+			items = ctx.key.startsWith("arcm-") ? directiveValueItems(ctx) : ctx.key.startsWith("css.") ? cssValueItems(ctx, snippets) : valueItems(ctx);
 		} else {
 			return null;
 		}
@@ -198,19 +203,21 @@ export function startServer(connection, { warm = true } = {}) {
 		const js = jsHover(model, params.position);
 		if (js) return js;
 		if (cssPosition(model, params.position)) return cssHover(model, params.position);
+		const cssProp = cssPropHover(model, params.position);
+		if (cssProp) return cssProp;
 		return htmlHover(model, params.position, new Set(model.imports.map((i) => i.name)));
 	});
 
 	// ###################
-	// Color swatches in [style], and the color picker
+	// Color swatches in [style] and css.name values, and the color picker
 	// ###################
 	connection.onDocumentColor((params) => {
 		const model = modelOf(params.textDocument.uri);
-		return model ? cssColors(model) : [];
+		return model ? [...cssColors(model), ...cssPropColors(model)] : [];
 	});
 	connection.onColorPresentation((params) => {
 		const model = modelOf(params.textDocument.uri);
-		return model ? cssColorPresentations(model, params.color, params.range) : [];
+		return model ? cssPropColorPresentations(model, params.color, params.range) ?? cssColorPresentations(model, params.color, params.range) : [];
 	});
 
 	connection.languages.semanticTokens.on((params) => {

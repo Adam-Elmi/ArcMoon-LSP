@@ -5,7 +5,7 @@
 import { TextDocuments, TextDocumentSyncKind, CodeActionKind } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { pathToFileURL } from "node:url";
-import { createWorkspace } from "./model.js";
+import { createWorkspace, filePath } from "./model.js";
 import { diagnose } from "./diagnostics.js";
 import { legend, markupTokens, encode, modifierBit } from "./highlight.js";
 import { jsTokens } from "./js-highlight.js";
@@ -32,7 +32,10 @@ export function startServer(connection, { warm = true } = {}) {
 	// An open document's text wins over the file on disk
 	// ###################
 	const workspace = createWorkspace({
-		getOpenText: (file) => documents.get(pathToFileURL(file).href)?.getText()
+		getOpenText: (file) => {
+			const doc = documents.get(pathToFileURL(file).href) ?? documents.all().find((d) => d.uri.startsWith("file:") && filePath(d.uri) === file);
+			return doc?.getText();
+		}
 	});
 
 	const update = (doc) => {

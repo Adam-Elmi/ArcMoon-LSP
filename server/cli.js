@@ -46,5 +46,11 @@ if (args[0] === "init") {
 	// ###################
 	console.log = console.info = console.debug = console.warn = (...args) => console.error(...args);
 
+	// ###################
+	// A bug in one feature is logged; it must not stop the whole server
+	// ###################
+	process.on("uncaughtException", (err) => console.error("arcmoon-lsp:", err?.stack ?? err));
+	process.on("unhandledRejection", (err) => console.error("arcmoon-lsp:", err?.stack ?? err));
+
 	startServer(createConnection(ProposedFeatures.all));
 }

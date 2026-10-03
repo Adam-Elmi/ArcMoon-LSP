@@ -13,13 +13,18 @@ import { offsetAt } from "./context.js";
 const require = createRequire(import.meta.url);
 
 // ###################
+// TypeScript names files with "/" on every OS; Windows paths use "\\", so they never matched
+// ###################
+const slash = (file) => file.replace(/\\/g, "/");
+
+// ###################
 // @types/node comes with the server, so it works without the project installing it
 // ###################
-const TYPE_ROOTS = [dirname(dirname(require.resolve("@types/node/package.json")))];
+const TYPE_ROOTS = [slash(dirname(dirname(require.resolve("@types/node/package.json"))))];
 // ###################
 // A folder that only exists for TypeScript: ArcMoon's declarations, and files without a path
 // ###################
-const DECLARATIONS = fileURLToPath(new URL("../__arcmoon__/", import.meta.url));
+const DECLARATIONS = slash(fileURLToPath(new URL("../__arcmoon__/", import.meta.url)));
 
 // ###################
 // What ArcMoon puts in scope, at build time and in the browser
@@ -99,7 +104,7 @@ const virtualFiles = new Map();
 // ###################
 const createService = (kind) => {
 	const { options, declarations } = KINDS[kind];
-	const declarationFile = join(DECLARATIONS, `${kind}.d.ts`);
+	const declarationFile = slash(join(DECLARATIONS, `${kind}.d.ts`));
 	const own = new Set();
 	const files = virtualFiles;
 
@@ -146,7 +151,7 @@ const services = { build: createService("build"), runtime: createService("runtim
 // ###################
 // The virtual file names sit next to the .arcm file, so relative imports and node_modules resolve
 // ###################
-export const fileNameOf = (model, kind) => `${model.file ?? join(DECLARATIONS, encodeURIComponent(model.uri))}.${kind}.js`;
+export const fileNameOf = (model, kind) => slash(`${model.file ?? join(DECLARATIONS, encodeURIComponent(model.uri))}.${kind}.js`);
 
 // ###################
 // Give TypeScript the latest virtual JS of a model
@@ -179,13 +184,18 @@ export function jsAt(model, position) {
 export const languageService = (kind) => services[kind].service;
 
 // ###################
-// Load the libraries and Node types ahead of the first keystroke
+// Load the libraries and Node types ahead of the first keystroke;
+// it only saves time, so a failure here must never stop the server
 // ###################
 export function warmUp() {
 	for (const kind of ["build", "runtime"]) {
-		const file = join(DECLARATIONS, `warm-up.${kind}.js`);
-		services[kind].set(file, "const x = 1;\nx.toFixed();\n");
-		services[kind].service.getCompletionsAtPosition(file, 14, {});
-		services[kind].delete(file);
+		const file = slash(join(DECLARATIONS, `warm-up.${kind}.js`));
+		try {
+			services[kind].set(file, "const x = 1;\nx.toFixed();\n");
+			services[kind].service.getCompletionsAtPosition(file, 14, {});
+		} catch {
+		} finally {
+			services[kind].delete(file);
+		}
 	}
 }

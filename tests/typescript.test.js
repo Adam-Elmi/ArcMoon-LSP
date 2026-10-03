@@ -114,3 +114,14 @@ describe("runtime code: what's special there", () => {
 		expect(completions(`[input = oninput: runtime \${ (e) => e.| }\$ !]`)).toEqual(expect.arrayContaining(["target", "preventDefault"]));
 	});
 });
+
+// ###################
+// Windows: TypeScript names files with "/", Windows paths have "\": the names must match
+// ###################
+
+describe("Windows paths", () => {
+	it("gives TypeScript file names with forward slashes", () => {
+		expect(fileNameOf({ file: "C:\\Users\\adam\\site\\page.arcm" }, "build")).toBe("C:/Users/adam/site/page.arcm.build.js");
+		expect(fileNameOf({ file: "/home/adam/site/page.arcm" }, "runtime")).toBe("/home/adam/site/page.arcm.runtime.js");
+	});
+});

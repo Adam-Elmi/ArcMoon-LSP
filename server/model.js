@@ -15,6 +15,15 @@ const MAX_DEPTH = 32;
 // ###################
 const parsed = new Map();
 
+// ###################
+// A file: URI as a path; on Windows the drive letter is made upper case ("c%3A" from
+// VS Code, "C:" from the disk), so both name the same file
+// ###################
+export const filePath = (uri) => {
+	const file = fileURLToPath(uri);
+	return process.platform === "win32" ? file.replace(/^[a-z]:/, (d) => d.toUpperCase()) : file;
+};
+
 export function parseText(file, text) {
 	const hit = parsed.get(file);
 	if (hit && hit.text === text) return hit;
@@ -113,7 +122,7 @@ export function createWorkspace({ getOpenText = () => undefined } = {}) {
 	// The model of one open document
 	// ###################
 	const analyze = (uri, text, version = null) => {
-		const file = uri.startsWith("file:") ? fileURLToPath(uri) : null;
+		const file = uri.startsWith("file:") ? filePath(uri) : null;
 		const root = file ? findRoot(file) : null;
 		const { config, skipped, error: configError, file: configFile } = root ? readConfig(root) : { config: {}, skipped: [], error: null, file: null };
 		const result = parseText(file ?? uri, text);

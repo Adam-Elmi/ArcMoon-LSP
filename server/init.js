@@ -206,7 +206,7 @@ const STEPS = {
 	},
 
 	async vscode({ io, confirm, asking, answer }) {
-		const id = "Adam-Elmi.arcmoon";
+		const id = "Adam-Elmi.arcmoon-language";
 		const manual = `Or in VS Code: Extensions (Ctrl+Shift+X) → search "ArcMoon" → Install`;
 		const editors = ["code", "codium"].filter((c) => io.has(c));
 		if (!editors.length) return [manual, `Or from a terminal: code --install-extension ${id}`];

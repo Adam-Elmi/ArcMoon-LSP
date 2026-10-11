@@ -152,7 +152,7 @@ describe("init with questions", () => {
 		const t = fake({ answers: ["codium", true], commands: ["code", "codium"] });
 		expect(await init(["vscode"], t.io)).toBe(0);
 		expect(t.asked.map(([k]) => k)).toEqual(["select", "confirm"]);
-		expect(t.ran).toEqual(["codium --install-extension Adam-Elmi.arcmoon"]);
+		expect(t.ran).toEqual(["codium --install-extension Adam-Elmi.arcmoon-language"]);
 		expect(t.shown.join("\n")).toMatch(/Reload VS Code/);
 	});
 

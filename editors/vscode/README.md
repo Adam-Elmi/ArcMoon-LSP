@@ -29,7 +29,7 @@ VSCodium and other editors based on VS Code find it the same way, through Open V
    arcmoon-lsp init vscode
    ```
 
-   It asks, then installs ArcMoon into VS Code (or VSCodium) with `code --install-extension Adam-Elmi.arcmoon`.
+   It asks, then installs ArcMoon into VS Code (or VSCodium) with `code --install-extension Adam-Elmi.arcmoon-language`.
 
 3. Reload VS Code and open a `.arcm` file.
 

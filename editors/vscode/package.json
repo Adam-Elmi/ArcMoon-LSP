@@ -1,8 +1,8 @@
 {
-  "name": "arcmoon",
-  "displayName": "ArcMoon",
+  "name": "arcmoon-language",
+  "displayName": "ArcMoon Language",
   "description": "ArcMoon (.arcm) language support: errors, colors and completions from arcmoon-lsp.",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "publisher": "Adam-Elmi",
   "private": true,
   "icon": "icons/arcmoon.png",

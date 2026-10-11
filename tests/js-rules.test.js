@@ -55,6 +55,15 @@ describe("build rules", () => {
 	])("marks %s", async (_, text, message, range) => {
 		expect(await check(text)).toEqual([[1, message, range]]);
 	});
+
+	it("allows return inside functions, like the compiler", async () => {
+		const text = `\${\n  const random = () => { return 4; };\n  function pick(list) { if (!list.length) return null; return list[0]; }\n  const f = function () { return 1; };\n  const n = random() + pick([1]);\n}\$`;
+		expect(await check(text)).toEqual([]);
+	});
+
+	it("still marks a top-level return inside an if", async () => {
+		expect(await check(`\${ if (true) return 1; const y = 2; }\$`)).toEqual([[1, "return is only allowed as the last statement of ${ }$", "0:13-19"]]);
+	});
 });
 
 describe("runtime rules", () => {

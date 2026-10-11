@@ -43,13 +43,19 @@ const at = (node, loc, wrapped = false) => ({
 	character: loc.line === 1 ? node.codeStart.character + loc.column - (wrapped ? 1 : 0) : loc.column
 });
 
-const walk = (tree, visit, parent = null) => {
+// ###################
+// skipFunctions: don't go into function bodies (a return there belongs to that function)
+// ###################
+const FUNCTION = /^(FunctionDeclaration|FunctionExpression|ArrowFunctionExpression)$/;
+
+const walk = (tree, visit, parent = null, skipFunctions = false) => {
 	if (!tree || typeof tree.type !== "string") return;
 	visit(tree, parent);
+	if (skipFunctions && parent && FUNCTION.test(tree.type)) return;
 	for (const key of Object.keys(tree)) {
 		const child = tree[key];
-		if (Array.isArray(child)) child.forEach((c) => walk(c, visit, tree));
-		else if (child && typeof child.type === "string") walk(child, visit, tree);
+		if (Array.isArray(child)) child.forEach((c) => walk(c, visit, tree, skipFunctions));
+		else if (child && typeof child.type === "string") walk(child, visit, tree, skipFunctions);
 	}
 };
 
@@ -161,7 +167,7 @@ export function jsDiagnostics(model) {
 				if (n.type === "ReturnStatement" && n !== statements[statements.length - 1]) {
 					errors.push({ position: at(node, n.loc.start), message: "return is only allowed as the last statement of ${ }$" });
 				}
-			});
+			}, null, true);
 			for (const s of statements) {
 				if (s.type === "ImportDeclaration") {
 					if (place === "prop") errors.push({ position: at(node, s.loc.start), message: "import is only allowed in a ${ }$ block, not in a prop value" });

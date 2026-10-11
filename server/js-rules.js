@@ -6,6 +6,7 @@ import * as acorn from "acorn";
 import { builtinModules } from "node:module";
 import { DiagnosticSeverity } from "vscode-languageserver/node";
 import { NODE_TYPES as N, closest } from "arcmoon/core";
+import { topDeclared, freeNames } from "./scope.js";
 
 const ACORN = { ecmaVersion: "latest", sourceType: "module", allowAwaitOutsideFunction: true, allowReturnOutsideFunction: true, locations: true };
 const BUILTINS = new Set(builtinModules);
@@ -90,30 +91,6 @@ const markRange = (text, position) => {
 		while (end < line.length && /[\w$]/.test(line[end])) end++;
 	}
 	return { start: position, end: { line: position.line, character: end } };
-};
-
-// ###################
-// Names declared anywhere in the code, and names it reads (as in the compiler)
-// ###################
-const declaredIn = (tree, out) => {
-	walk(tree, (n) => {
-		if (n.type === "VariableDeclarator") patternNames(n.id, out);
-		else if (/^(Function|Class)(Declaration|Expression)$/.test(n.type) && n.id) out.add(n.id.name);
-		if (/Function/.test(n.type)) n.params.forEach((p) => patternNames(p, out));
-		if (n.type === "CatchClause") patternNames(n.param, out);
-		if (/^Import(Default|Namespace)?Specifier$/.test(n.type)) out.add(n.local.name);
-	});
-};
-
-const references = (tree, visit) => {
-	walk(tree, (n, p) => {
-		if (n.type !== "Identifier" || !p) return;
-		if (p.type === "MemberExpression" && p.property === n && !p.computed) return;
-		if ((p.type === "Property" || p.type === "MethodDefinition" || p.type === "PropertyDefinition") && p.key === n && !p.computed && !p.shorthand) return;
-		if (/Label|Break|Continue/.test(p.type)) return;
-		if (/^(Import|Export)/.test(p.type)) return;
-		visit(n);
-	});
 };
 
 // ###################
@@ -210,8 +187,12 @@ export function jsDiagnostics(model) {
 	// ###################
 	// Runtime code may only use exported build names; likely typos in live values
 	// ###################
+	// ###################
+	// The file's own names come from the top level of its runtime blocks; a name declared
+	// inside a function or block only hides a build name there (scope.js, as in the compiler)
+	// ###################
 	const declared = new Set();
-	for (const r of runtime) declaredIn(r.tree, declared);
+	for (const r of runtime) if (r.place === "block") topDeclared(r.tree, declared);
 	// ###################
 	// [for-each] names (and i) only exist while the page is built
 	// ###################
@@ -235,9 +216,8 @@ export function jsDiagnostics(model) {
 
 	const reported = new Set();
 	for (const r of runtime) {
-		references(r.tree, (id) => {
-			const name = id.name;
-			if (declared.has(name) || reported.has(name)) return;
+		for (const [name, id] of freeNames(r.tree)) {
+			if (declared.has(name) || reported.has(name)) continue;
 			if (!staticNames.has(name) && loopNames.has(name)) {
 				reported.add(name);
 				errors.push({
@@ -257,7 +237,7 @@ export function jsDiagnostics(model) {
 					warnings.push({ position: at(r.node, id.loc.start, r.wrapped), message: `"${name}" is not defined in this file's runtime code (did you mean "${best}"?)` });
 				}
 			}
-		});
+		}
 	}
 
 	const toDiagnostic = (severity) => ({ position, message }) => ({ severity, range: markRange(model.text, position), message, source: SOURCE });

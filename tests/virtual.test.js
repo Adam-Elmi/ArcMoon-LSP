@@ -79,6 +79,12 @@ describe("runtime.js", () => {
 		expect(runtime.text).not.toContain("title");
 	});
 
+	it("leaves out an exported value that runtime code declares itself, a hoisted var too", () => {
+		const own = docsOf(`\${ export const who = "Ada"; export const n = 1; }\$\nruntime \${ if (n) { var who = "Bo"; } const f = (n) => n; }\$`, "/tmp/page.arcm").runtime.text;
+		expect(own).not.toContain(".who} */");
+		expect(own).toContain(".n} */");
+	});
+
 	it("maps a live value in markup", () => {
 		const source = find(SOURCE, "count() }$[end]");
 		const virtual = runtime.toVirtual(source);

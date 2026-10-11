@@ -110,6 +110,41 @@ describe("runtime rules", () => {
 		expect(await check(`\${ const xs = [1]; }\$\n[for-each = \${ xs }\$, as: "item"][p = data-item: \${ item }\$]\${ i }\$[end][end]\nruntime \${ for (let i = 0; i < 2; i++) console.log(i); }\$`)).toEqual([]);
 	});
 
+	// ###################
+	// B17 / B18 (ArcMoon 1.0.0-rc.2): scopes and import(url), as in the compiler
+	// ###################
+	const notExported = (name) => `runtime code uses "${name}", which is not exported from \${ }$. Add "export" to its declaration, or write export { ${name} }, to send it to visitors' browsers.`;
+	const spot = (text, before, name) => {
+		const lines = text.split("\n");
+		const line = lines.findIndex((l) => l.includes(before));
+		const start = lines[line].indexOf(before) + before.length;
+		return `${line}:${start}-${start + name.length}`;
+	};
+
+	it("B17: a parameter or block name only hides a build name inside its own scope", async () => {
+		const param = `\${ const who = "Ada"; }\$\nruntime \${ const greet = (who) => who; console.log(who); }\$`;
+		expect(await check(param)).toEqual([[1, notExported("who"), spot(param, "console.log(", "who")]]);
+		await client.dispose();
+		client = null;
+		const block = `\${ const who = "Ada"; }\$\nruntime \${ { const who = 1; } console.log(who); }\$`;
+		expect(await check(block)).toEqual([[1, notExported("who"), spot(block, "console.log(", "who")]]);
+	});
+
+	it("B17: exported, or declared at the top of runtime code, is fine", async () => {
+		expect(await check(`\${ export const who = "Ada"; }\$\nruntime \${ const greet = (who) => who; console.log(who); }\$`)).toEqual([]);
+		await client.dispose();
+		client = null;
+		expect(await check(`\${ const who = "Ada"; }\$\nruntime \${ const who = "Bo"; console.log(who); }\$`)).toEqual([]);
+	});
+
+	it("B18: a build name used only in import() must be exported", async () => {
+		const text = `\${ const url = "./a.js"; }\$\nruntime \${ import(url); }\$`;
+		expect(await check(text)).toEqual([[1, notExported("url"), spot(text, "import(", "url")]]);
+		await client.dispose();
+		client = null;
+		expect(await check(`\${ export const url = "./a.js"; }\$\nruntime \${ import(url); }\$`)).toEqual([]);
+	});
+
 	it("accepts exported values in runtime code and live values", async () => {
 		expect(await check(`\${ export const title = "x"; const local = 1; }\$\nruntime \${ console.log(title); }\$\n[p = title: runtime \${ title }\$]\${ local }\$[end]`)).toEqual([]);
 	});

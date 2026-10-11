@@ -7,6 +7,7 @@ import * as acorn from "acorn";
 import { basename } from "node:path";
 import { NODE_TYPES as N, TOKEN_TYPES as T } from "arcmoon/core";
 import { offsetAt, positionAt } from "./context.js";
+import { topDeclared } from "./scope.js";
 
 const ACORN = { ecmaVersion: "latest", sourceType: "module", allowAwaitOutsideFunction: true, allowReturnOutsideFunction: true };
 
@@ -177,9 +178,15 @@ export const exportsOf = (codes) => {
 	return out;
 };
 
+// ###################
+// Names runtime code declares for itself (top level, hoisted var, imports), as in the compiler
+// ###################
 const declaredIn = (codes) => {
 	const out = new Set();
-	for (const code of codes) for (const s of parseQuietly(code)?.body ?? []) declaredBy(s, out);
+	for (const code of codes) {
+		const tree = parseQuietly(code);
+		if (tree) topDeclared(tree, out);
+	}
 	return out;
 };
 

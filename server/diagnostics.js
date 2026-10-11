@@ -7,6 +7,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { basename, dirname } from "node:path";
 import { unknownTags, closest, COMPONENT, NODE_TYPES as N, TOKEN_TYPES as T } from "arcmoon/core";
 import { cssPropDiagnostics, moveToKey } from "./css-props.js";
+import { attributeDiagnostics } from "./attributes.js";
 import { cssDiagnostics } from "./css.js";
 import { jsDiagnostics } from "./js-rules.js";
 import { refDiagnostics } from "./refs.js";
@@ -171,5 +172,5 @@ export function importDiagnostics(model) {
 // ###################
 export function diagnose(model) {
 	if (model.error) return syntaxDiagnostics(model);
-	return [...tagDiagnostics(model), ...importDiagnostics(model), ...cssDiagnostics(model), ...cssPropDiagnostics(model), ...jsDiagnostics(model), ...refDiagnostics(model), ...fileDiagnostics(model)];
+	return [...tagDiagnostics(model), ...importDiagnostics(model), ...cssDiagnostics(model), ...cssPropDiagnostics(model), ...attributeDiagnostics(model), ...jsDiagnostics(model), ...refDiagnostics(model), ...fileDiagnostics(model)];
 }

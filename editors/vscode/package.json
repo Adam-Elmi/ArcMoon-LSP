@@ -63,7 +63,7 @@
     "package": "vsce package"
   },
   "dependencies": {
-    "arcmoon-lsp": "^1.2.0",
+    "arcmoon-lsp": "^1.0.0",
     "vscode-languageclient": "^10.1.2"
   },
   "devDependencies": {

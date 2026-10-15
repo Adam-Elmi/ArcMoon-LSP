@@ -2,7 +2,7 @@
   "name": "arcmoon-language",
   "displayName": "ArcMoon Language",
   "description": "ArcMoon (.arcm) language support: errors, colors and completions from arcmoon-lsp.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "Adam-Elmi",
   "private": true,
   "icon": "icons/arcmoon.png",
@@ -63,7 +63,7 @@
     "package": "vsce package"
   },
   "dependencies": {
-    "arcmoon-lsp": "^1.2.0",
+    "arcmoon-lsp": "^1.2.2",
     "vscode-languageclient": "^10.1.2"
   },
   "devDependencies": {
